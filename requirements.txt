@@ -1,3 +1,6 @@
 gradio 
 opencv-python-headless 
 scikit-learn
+streamlit
+Pillow
+numpy
