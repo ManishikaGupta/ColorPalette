@@ -599,32 +599,54 @@ def display_colors(colors):
         color_block = f"<div style='display:inline-block; width:100px; height:100px; margin:10px; background-color:rgb({r},{g},{b});'></div><p>{color_name}</p>"
         color_blocks += color_block
     return color_blocks
-# Gradio interface function
-def color_recommendation(image, hair_color, eye_color):
-    if image is None:
-        return "Please upload an image."
+import streamlit as st
+from PIL import Image
+import numpy as np
 
-    image = Image.fromarray(image)
-    undertone = find_dominant_skin_tone(image)
+# Function to find the dominant skin tone
+def find_dominant_skin_tone(image):
+    # Dummy implementation for demonstration; replace with your actual logic
+    return "Warm"
 
+# Function to get recommended colors
+def get_recommended_colors(undertone, hair_color, eye_color):
+    # Dummy implementation; replace with your actual logic
+    return ["Red", "Orange", "Gold"] if undertone == "Warm" else ["Blue", "Green", "Silver"]
+
+# Function to display colors
+def display_colors(colors):
+    return ", ".join(colors)
+
+# Main Streamlit app
+st.title("Color Recommendation Based on Skin Undertone, Hair, and Eye Color")
+st.write("Upload an image of your face, select your hair and eye colors, and receive color recommendations.")
+
+# Image upload
+uploaded_image = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
+hair_color = st.selectbox("Select Hair Color", ["Black", "Brown", "Blonde"])
+eye_color = st.selectbox("Select Eye Color", ["Black", "Brown", "Blue", "Gray"])
+
+if uploaded_image is not None:
+    # Load the image
+    image = Image.open(uploaded_image)
+    st.image(image, caption="Uploaded Image", use_column_width=True)
+    
+    # Convert the image to a numpy array for processing
+    image_np = np.array(image)
+
+    # Process the image and get recommendations
+    undertone = find_dominant_skin_tone(image_np)
     recommended_colors = get_recommended_colors(undertone, hair_color, eye_color)
+
+    # Display results
+    st.subheader("Recommendations")
     if recommended_colors:
-        return f"Skin Undertone: {undertone}<br>Hair Color: {hair_color}<br>Eye Color: {eye_color}<br><br>{display_colors(recommended_colors)}"
+        st.write(f"**Skin Undertone**: {undertone}")
+        st.write(f"**Hair Color**: {hair_color}")
+        st.write(f"**Eye Color**: {eye_color}")
+        st.write(f"**Recommended Colors**: {display_colors(recommended_colors)}")
     else:
-        return "No matching colors found in the dataset."
+        st.write("No matching colors found in the dataset.")
+else:
+    st.write("Please upload an image to get started.")
 
-# Create Gradio interface
-iface = gr.Interface(
-    fn=color_recommendation,
-    inputs=[
-        gr.Image(type="numpy", label="Upload Image"),
-        gr.Dropdown(choices=["Black", "Brown", "Blonde"], label="Select Hair Color"),
-        gr.Dropdown(choices=["Black", "Brown", "Blue", "Gray"], label="Select Eye Color")
-    ],
-    outputs=gr.HTML(),
-    title="Color Recommendation Based on Skin Undertone, Hair, and Eye Color",
-    description="Upload an image of your face, select your hair and eye colors, and receive color recommendations."
-)
-
-# Launch the interface
-iface.launch(debug=True)
